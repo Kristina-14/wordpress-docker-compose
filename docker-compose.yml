@@ -1,16 +1,30 @@
 version: '3.9'
 
 services:
-  nginx:
-    image: nginx:stable-alpine
-    ports:
-      - 80:80
+
   mysql:
     image: mysql:latest
+    restart: always
     environment:
       MYSQL_DATABASE: wp
       MYSQL_USER: wp
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
-  php:
-    image: php:7.4-fpm-alpine
+    volumes:
+      - mysql_vol:/var/lib/mysql
+  wordpress:
+    depends_on:
+      - mysql
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASSWORD: secret
+      WORDPRESS_DB_NAME: wp
+    volumes: ["./:/var/www/html"]
+
+volumes:
+  mysql_vol:
